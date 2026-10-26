@@ -22,5 +22,33 @@ jobs:
       - name: Build
         run: ./mvnw -B -ntp test || mvn -B -ntp test
 
-      - name: Validate Docker Compose
+      - name: Validate local Docker Compose
         run: docker compose config
+
+      - name: Validate real AWS Docker Compose
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_SESSION_TOKEN: test
+          AWS_REGION: us-east-1
+          ORDERS_TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:workshop-eda-orders-topic
+          NOTIFICATION_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/000000000000/workshop-eda-notification-queue
+          ANALYTICS_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/000000000000/workshop-eda-analytics-queue
+        run: docker compose -f compose.aws.yaml config
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.4
+
+      - name: Terraform fmt
+        working-directory: infra/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        working-directory: infra/terraform
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: infra/terraform
+        run: terraform validate
