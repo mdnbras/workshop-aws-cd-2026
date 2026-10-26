@@ -1,45 +1,75 @@
 # Lab 3 — Fan-out com SNS + SQS
 
-Tempo sugerido: **25 minutos**.
+Tempo sugerido: **20 minutos**.
+
+## Branch deste laboratório
+
+```bash
+git switch workshop/03-fanout
+```
+
+Se estiver vindo do Lab 2:
+
+```bash
+docker compose down -v
+git switch workshop/03-fanout
+```
+
+## Estado inicial
+
+Nesta etapa o producer já existe e o SNS já recebe `OrderCreated`.
+
+A novidade desta branch é a infraestrutura de fan-out:
+
+```text
+                         +-> notification-queue
+Order API -> orders-topic
+                         +-> analytics-queue
+```
+
+Ainda não existem consumers executando. Isso é proposital: primeiro vamos enxergar o fan-out apenas pela infraestrutura.
 
 ## Objetivo
 
-Entender como um único evento pode alimentar vários consumidores independentes.
+Entender como um único evento publicado no SNS gera mensagens independentes em duas filas SQS.
 
-## 1. Suba novamente os workers
-
-```bash
-docker compose start notification-worker analytics-worker
-```
-
-Abra dois terminais:
+## 1. Confirme a branch
 
 ```bash
-docker compose logs -f notification-worker
+git branch --show-current
 ```
 
-```bash
-docker compose logs -f analytics-worker
-```
-
-## 2. Publique um novo pedido
-
-```bash
-curl -X POST http://localhost:8080/orders \
-  -H 'Content-Type: application/json' \
-  -d '{"customerEmail":"student@aws.local","total":249.90}'
-```
-
-Você deverá ver:
+Resultado esperado:
 
 ```text
-notification -> action=send-email
-analytics    -> action=record-metric
+workshop/03-fanout
 ```
 
-O mesmo evento foi entregue a dois fluxos diferentes.
+## 2. Suba o ambiente
 
-## 3. Visualize as subscriptions
+```bash
+docker compose up --build -d
+```
+
+## 3. Veja o tópico e as filas
+
+```bash
+docker compose --profile tools run --rm aws-cli sns list-topics
+```
+
+```bash
+docker compose --profile tools run --rm aws-cli sqs list-queues
+```
+
+Você deve encontrar:
+
+```text
+orders-topic
+notification-queue
+analytics-queue
+```
+
+## 4. Visualize as subscriptions
 
 ```bash
 docker compose --profile tools run --rm aws-cli \
@@ -47,40 +77,27 @@ docker compose --profile tools run --rm aws-cli \
   --topic-arn arn:aws:sns:us-east-1:000000000000:orders-topic
 ```
 
-As duas filas estão inscritas no mesmo tópico.
+As duas filas devem estar inscritas no mesmo tópico.
 
-## 4. Arquitetura atual
-
-```text
-                         +-> notification-queue -> notification-worker
-Order API -> orders-topic
-                         +-> analytics-queue    -> analytics-worker
-```
-
-SNS distribui. SQS desacopla.
-
-## 5. Demonstre independência
-
-Pare apenas analytics:
+## 5. Publique um novo pedido
 
 ```bash
-docker compose stop analytics-worker
+curl -X POST http://localhost:8080/orders \
+  -H 'Content-Type: application/json' \
+  -d '{"customerEmail":"student@aws.local","total":249.90}'
 ```
 
-Envie três pedidos:
+## 6. Verifique o fan-out sem consumers
+
+Consulte a fila de notificação:
 
 ```bash
-for i in 1 2 3; do
-  curl -s -X POST http://localhost:8080/orders \
-    -H 'Content-Type: application/json' \
-    -d "{\"customerEmail\":\"student${i}@aws.local\",\"total\":${i}9.90}" \
-    > /dev/null
-done
+docker compose --profile tools run --rm aws-cli sqs get-queue-attributes \
+  --queue-url http://floci:4566/000000000000/notification-queue \
+  --attribute-names ApproximateNumberOfMessages
 ```
 
-O notification worker continua processando normalmente.
-
-Agora verifique a fila de analytics:
+Agora analytics:
 
 ```bash
 docker compose --profile tools run --rm aws-cli sqs get-queue-attributes \
@@ -88,48 +105,79 @@ docker compose --profile tools run --rm aws-cli sqs get-queue-attributes \
   --attribute-names ApproximateNumberOfMessages
 ```
 
-As mensagens ficaram esperando.
+O mesmo evento deve existir de forma independente nas duas filas.
 
-Suba analytics novamente:
+## 7. Leia uma mensagem manualmente
 
 ```bash
-docker compose start analytics-worker
+docker compose --profile tools run --rm aws-cli sqs receive-message \
+  --queue-url http://floci:4566/000000000000/notification-queue \
+  --max-number-of-messages 1
 ```
-
-Veja o backlog sendo processado.
-
-## 6. Por que não usar apenas uma fila?
-
-Imagine:
-
-```text
-                    -> notification-worker
-Order API -> SQS
-                    -> analytics-worker
-```
-
-Os workers competiriam pelas mensagens da mesma fila. Uma mensagem consumida e apagada por notification não ficaria disponível para analytics.
-
-Quando **todos** os tipos de consumidores precisam receber o evento, usamos fan-out para filas independentes.
-
-## 7. Contrato do evento
 
 Observe o payload `OrderCreated`.
 
-Pergunte:
+## 8. Por que não usar apenas uma fila?
 
-- Que campos o notification worker realmente precisa?
-- Que campos analytics precisa?
-- O que aconteceria se renomeássemos `customerEmail`?
+Se dois tipos de consumidores compartilhassem a mesma fila, eles competiriam pelas mensagens.
 
-Eventos são contratos. Mudanças devem considerar compatibilidade com consumidores existentes.
+```text
+                    -> consumer A
+Order API -> SQS
+                    -> consumer B
+```
+
+Uma mensagem processada por A não seria também entregue a B.
+
+Quando diferentes funcionalidades precisam reagir ao mesmo evento, o fan-out cria cópias independentes:
+
+```text
+SNS
+ +-> SQS A
+ +-> SQS B
+```
+
+SNS distribui. SQS desacopla e armazena.
+
+## Estado final
+
+A arquitetura agora é:
+
+```text
+                         +-> notification-queue
+POST /orders -> API -> SNS
+                         +-> analytics-queue
+```
+
+Nenhuma aplicação consumer está rodando ainda.
+
+Você deve ter entendido:
+
+- diferença entre topic e queue;
+- o que significa fan-out;
+- por que cada consumer costuma ter sua própria fila;
+- como SNS e SQS têm responsabilidades diferentes.
+
+## Checklist de saída
+
+- [ ] Estou na branch `workshop/03-fanout`.
+- [ ] O tópico `orders-topic` existe.
+- [ ] Existem duas filas SQS.
+- [ ] As duas filas estão inscritas no tópico.
+- [ ] Um único `POST /orders` gera mensagem nas duas filas.
 
 ## Pergunta de fixação
 
-**Quem precisa conhecer todos os consumidores: Order API ou SNS?**
+**Quem precisa conhecer todos os consumidores: a Order API ou a infraestrutura de subscriptions?**
 
-A Order API conhece o tópico. A configuração de subscriptions conecta os consumidores. Isso reduz acoplamento do producer.
+A Order API conhece apenas o tópico. As subscriptions determinam quais filas receberão cada evento.
 
 ## Próximo passo
 
-Vamos provocar uma falha persistente e acompanhar retry + DLQ.
+Agora vamos adicionar aplicações que realmente consomem essas filas.
+
+```bash
+git switch workshop/04-consumers
+```
+
+Continue em [Lab 4 — Consumidores independentes](06-lab-4-consumers.md).
