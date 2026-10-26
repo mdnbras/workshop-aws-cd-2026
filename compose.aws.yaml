@@ -1,0 +1,37 @@
+services:
+  order-api:
+    build:
+      context: .
+      dockerfile: order-api/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      ORDERS_TOPIC_ARN: ${ORDERS_TOPIC_ARN}
+
+  notification-worker:
+    build:
+      context: .
+      dockerfile: event-worker/Dockerfile
+    environment:
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      WORKER_NAME: notification
+      QUEUE_URL: ${NOTIFICATION_QUEUE_URL}
+
+  analytics-worker:
+    build:
+      context: .
+      dockerfile: event-worker/Dockerfile
+    environment:
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      WORKER_NAME: analytics
+      QUEUE_URL: ${ANALYTICS_QUEUE_URL}
