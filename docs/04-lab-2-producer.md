@@ -2,43 +2,34 @@
 
 Tempo sugerido: **20 minutos**.
 
+## Branch deste laboratório
+
+```bash
+git switch workshop/02-producer
+```
+
+## Estado inicial
+
+Nesta etapa temos apenas o producer e o tópico SNS:
+
+```text
+POST /orders -> Order API -> orders-topic
+```
+
+Ainda não existem filas ou consumers.
+
 ## Objetivo
 
-Receber uma requisição HTTP e publicar um evento `OrderCreated` no Amazon SNS local usando Kotlin + Spring Boot.
+Receber uma requisição HTTP e publicar `OrderCreated` no SNS local usando Kotlin + Spring Boot.
 
-## 1. Suba todo o ambiente
+## Passos
 
 ```bash
 docker compose up --build -d
-```
-
-Acompanhe o startup:
-
-```bash
 docker compose logs -f order-api
 ```
 
-## 2. Entenda o endpoint
-
-A API expõe:
-
-```http
-POST /orders
-Content-Type: application/json
-```
-
-Payload:
-
-```json
-{
-  "customerEmail": "dev@aws.local",
-  "total": 149.90
-}
-```
-
-O endpoint cria um `orderId`, cria um `eventId` e publica o evento no tópico SNS `orders-topic`.
-
-## 3. Envie o primeiro pedido
+Envie um pedido:
 
 ```bash
 curl -X POST http://localhost:8080/orders \
@@ -46,92 +37,36 @@ curl -X POST http://localhost:8080/orders \
   -d '{"customerEmail":"dev@aws.local","total":149.90}'
 ```
 
-Resposta esperada: HTTP `202 Accepted` com o evento criado.
-
-## 4. Veja o log do producer
-
-```bash
-docker compose logs --tail=50 order-api
-```
-
-Procure por algo parecido com:
-
-```text
-event=OrderCreated eventId=... orderId=... published=true
-```
-
-## 5. Inspecione o tópico
+Inspecione o tópico:
 
 ```bash
 docker compose --profile tools run --rm aws-cli sns list-topics
 ```
 
-Você deve ver:
+Fluxo do código:
 
 ```text
-arn:aws:sns:us-east-1:000000000000:orders-topic
+OrderController
+  -> CreateOrderService
+  -> OrderCreated
+  -> OrderEventPublisher
+  -> SnsOrderEventPublisher
 ```
 
-## 6. O que o código faz?
-
-No `OrderController.kt`:
-
-```kotlin
-snsClient.publish(
-    PublishRequest.builder()
-        .topicArn(topicArn)
-        .message(message)
-        .build()
-)
-```
-
-O evento também é modelado de forma simples com `data class`:
-
-```kotlin
-data class OrderCreated(
-    val eventId: UUID,
-    val orderId: UUID,
-    val customerEmail: String,
-    val total: BigDecimal,
-    val occurredAt: Instant
-)
-```
-
-O detalhe importante não é decorar a API do SDK. É entender a responsabilidade:
+## Estado final
 
 ```text
-HTTP request
-   -> regra da aplicação
-   -> evento criado
-   -> evento publicado
+HTTP -> Kotlin/Spring Boot -> OrderCreated -> SNS
 ```
 
-O producer não chama notification e analytics diretamente.
+- [ ] `POST /orders` retorna `202`.
+- [ ] `orders-topic` existe.
+- [ ] Vejo `OrderCreated` nos logs.
+- [ ] Sei explicar por que o producer não conhece consumers.
 
-## 7. Pare os consumidores e publique de novo
+## Próxima etapa
 
 ```bash
-docker compose stop notification-worker analytics-worker
+docker compose down -v
+git switch workshop/03-fanout
 ```
-
-Publique mais dois pedidos.
-
-Depois verifique quantas mensagens existem nas filas:
-
-```bash
-docker compose --profile tools run --rm aws-cli sqs get-queue-attributes \
-  --queue-url http://floci:4566/000000000000/notification-queue \
-  --attribute-names ApproximateNumberOfMessages
-```
-
-Faça o mesmo para `analytics-queue`.
-
-## Pergunta de fixação
-
-**Por que a Order API não chama diretamente os dois workers?**
-
-Porque o objetivo é desacoplar o producer dos consumidores. Novos consumidores podem surgir sem mudar a chamada HTTP original.
-
-## Próximo passo
-
-No próximo lab vamos visualizar o fan-out: um evento entrando no SNS e duas cópias independentes indo para duas filas SQS.
