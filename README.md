@@ -21,15 +21,14 @@ flowchart LR
 
 ## O que você vai aprender
 
-- O que é uma arquitetura orientada a eventos.
-- Diferença entre comunicação síncrona e assíncrona.
+- Arquitetura orientada a eventos.
+- Comunicação síncrona x assíncrona.
 - Producer, event, topic, queue e consumer.
-- Fan-out com Amazon SNS + Amazon SQS.
-- Por que consumidores devem ser independentes.
+- Fan-out com SNS + SQS.
+- Consumers independentes.
 - Retry, Visibility Timeout e Dead Letter Queue.
-- Como apontar o AWS SDK para um ambiente AWS local.
-- Como construir producer e consumers com Kotlin + Spring Boot.
-- Como levar a mesma ideia para uma conta AWS real depois do workshop.
+- AWS SDK apontando para o Floci.
+- Kotlin + Spring Boot em producer e workers.
 
 ## Stack
 
@@ -43,26 +42,71 @@ flowchart LR
 - Docker / Docker Compose
 - Maven
 
-## Pré-requisitos
+## Organização do código
 
-A única instalação obrigatória é:
+```text
+order-api/
+  api/          # HTTP e DTOs
+  application/  # caso de uso CreateOrder
+  domain/       # evento OrderCreated
+  messaging/    # contrato + publisher SNS
+  config/       # configuração AWS SDK
+
+event-worker/
+  consumer/     # polling e ack da fila SQS
+  handler/      # comportamento do consumidor
+  model/        # modelo tipado do evento
+  config/       # configuração AWS SDK
+```
+
+Fluxo didático:
+
+```text
+HTTP -> caso de uso -> evento -> publisher -> SNS
+SQS -> consumer -> parser -> handler
+```
+
+## Branches do passo a passo
+
+Cada etapa possui um snapshot próprio:
+
+| Branch | Etapa | Estado do projeto |
+|---|---|---|
+| `workshop/01-floci` | Lab 1 | Apenas Floci + AWS CLI local |
+| `workshop/02-producer` | Lab 2 | SNS + Order API publicando `OrderCreated` |
+| `workshop/03-fanout` | Lab 3 | SNS + duas filas SQS + subscriptions |
+| `workshop/04-consumers` | Lab 3/4 | Consumers independentes, ainda sem DLQ |
+| `workshop/05-dlq-final` | Lab 4 | Solução completa com retry e DLQ |
+| `workshop/00-before-refactor` | Referência | Versão anterior à refatoração por responsabilidades |
+
+Durante o workshop:
+
+```bash
+git switch workshop/01-floci
+# ... execute o passo ...
+git switch workshop/02-producer
+# ... e assim por diante
+```
+
+## Pré-requisitos
 
 - Docker 20.10+
 - Docker Compose v2+
 - Git
 - curl ou Postman/Insomnia
 
-Kotlin, Java e Maven não precisam estar instalados na máquina para acompanhar o workshop: o build e a execução das aplicações são feitos pelos containers.
+Kotlin, Java e Maven não precisam estar instalados localmente: o build é feito pelos containers.
 
-## Início rápido
+## Início rápido — solução final
 
 ```bash
 git clone https://github.com/mdnbras/workshop-aws-cd-2026.git
 cd workshop-aws-cd-2026
+git switch workshop/05-dlq-final
 docker compose up --build
 ```
 
-Quando os containers estiverem prontos:
+Teste:
 
 ```bash
 curl -X POST http://localhost:8080/orders \
@@ -70,21 +114,19 @@ curl -X POST http://localhost:8080/orders \
   -d '{"customerEmail":"dev@aws.local","total":149.90}'
 ```
 
-Você verá o mesmo evento sendo processado por dois consumidores independentes.
-
 ## Roteiro de 2 horas
 
 | Tempo | Etapa |
 |---|---|
 | 00:00-00:15 | Fundamentos: síncrono x assíncrono e EDA |
-| 00:15-00:30 | Subindo Floci e inspecionando os serviços locais |
-| 00:30-00:50 | Lab 1 — Producer em Kotlin e primeiro evento |
-| 00:50-01:15 | Lab 2 — SNS + SQS e fan-out |
-| 01:15-01:35 | Lab 3 — Workers em Kotlin e consumidores independentes |
-| 01:35-01:50 | Lab 4 — falha, retry e DLQ |
+| 00:15-00:30 | Floci e AWS local |
+| 00:30-00:50 | Producer em Kotlin e primeiro evento |
+| 00:50-01:15 | SNS + SQS e fan-out |
+| 01:15-01:35 | Workers e consumidores independentes |
+| 01:35-01:50 | Falha, retry e DLQ |
 | 01:50-02:00 | Desafio final, recap e próximos passos |
 
-## Material do workshop
+## Material
 
 1. [Agenda do instrutor](docs/00-agenda.md)
 2. [Pré-requisitos](docs/01-pre-requisitos.md)
@@ -96,51 +138,22 @@ Você verá o mesmo evento sendo processado por dois consumidores independentes.
 8. [Desafios extras](docs/07-desafios.md)
 9. [Cleanup e próximos passos](docs/08-cleanup.md)
 
-## Arquitetura local
-
-Todos os containers compartilham a mesma rede Docker. O endpoint AWS usado pelas aplicações é:
-
-```text
-http://floci:4566
-```
-
-Do host, você pode acessar o Floci em:
-
-```text
-http://localhost:4566
-```
-
-O Floci usa por padrão a conta local `000000000000` e a região `us-east-1`.
-
 ## Comandos úteis
 
 ```bash
-# Ver os containers
 docker compose ps
-
-# Acompanhar todos os logs
 docker compose logs -f
-
-# Acompanhar apenas o producer
 docker compose logs -f order-api
-
-# Acompanhar apenas os consumidores
 docker compose logs -f notification-worker analytics-worker
-
-# Ver as filas
 docker compose --profile tools run --rm aws-cli sqs list-queues
-
-# Ver o tópico
 docker compose --profile tools run --rm aws-cli sns list-topics
-
-# Parar o laboratório
 docker compose down
-
-# Parar e apagar dados locais
 docker compose down -v
 ```
 
-## Pedido que demonstra DLQ
+## Cenário de DLQ
+
+Na etapa final:
 
 ```bash
 curl -X POST http://localhost:8080/orders \
@@ -148,11 +161,11 @@ curl -X POST http://localhost:8080/orders \
   -d '{"customerEmail":"fail@workshop.local","total":99.90}'
 ```
 
-Esse e-mail provoca uma falha proposital apenas no `notification-worker`, permitindo visualizar retry e Dead Letter Queue sem afetar o `analytics-worker`.
+A falha é proposital apenas no `notification-worker`; o `analytics-worker` continua processando e, depois das tentativas configuradas, a mensagem problemática segue para a DLQ.
 
-## Observação importante
+## Produção real
 
-Floci é um emulador local compatível com APIs AWS. O objetivo do workshop é ensinar os conceitos e o fluxo de desenvolvimento sem exigir uma conta AWS. Em produção, revise IAM, redes, criptografia, observabilidade, limites, custos e disponibilidade antes de aplicar a arquitetura.
+Floci é usado apenas para desenvolvimento local e aprendizado. Em produção, revise IAM, políticas SNS/SQS, criptografia, rede, observabilidade, idempotência, limites, custos e disponibilidade.
 
 ## Autor
 
