@@ -11,7 +11,7 @@ aws_local() {
 }
 
 echo "[aws-init] waiting for Floci at ${ENDPOINT}..."
-until aws_local sts get-caller-identity >/dev/null 2>&1; do
+until aws_local sns list-topics >/dev/null 2>&1; do
   sleep 1
 done
 
@@ -45,12 +45,28 @@ ANALYTICS_QUEUE_ARN=$(aws_local sqs get-queue-attributes \
   --query 'Attributes.QueueArn' \
   --output text)
 
-REDRIVE_POLICY="{\"deadLetterTargetArn\":\"${DLQ_ARN}\",\"maxReceiveCount\":\"3\"}"
+cat >/tmp/notification-attributes.json <<EOF
+{
+  "RedrivePolicy": "{\"deadLetterTargetArn\":\"${DLQ_ARN}\",\"maxReceiveCount\":\"3\"}",
+  "Policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${NOTIFICATION_QUEUE_ARN}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"${TOPIC_ARN}\"}}}]}"
+}
+EOF
+
+cat >/tmp/analytics-attributes.json <<EOF
+{
+  "Policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${ANALYTICS_QUEUE_ARN}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"${TOPIC_ARN}\"}}}]}"
+}
+EOF
+
 aws_local sqs set-queue-attributes \
   --queue-url "$NOTIFICATION_QUEUE_URL" \
-  --attributes "RedrivePolicy=${REDRIVE_POLICY}"
+  --attributes file:///tmp/notification-attributes.json
 
-# Recriar o laboratório deve ser seguro. Removemos subscriptions antigas antes de assinar novamente.
+aws_local sqs set-queue-attributes \
+  --queue-url "$ANALYTICS_QUEUE_URL" \
+  --attributes file:///tmp/analytics-attributes.json
+
+# Reexecutar o compose deve manter uma única subscription por fila.
 for SUB_ARN in $(aws_local sns list-subscriptions-by-topic \
   --topic-arn "$TOPIC_ARN" \
   --query 'Subscriptions[].SubscriptionArn' \
