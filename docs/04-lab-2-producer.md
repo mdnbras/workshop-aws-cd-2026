@@ -4,7 +4,7 @@ Tempo sugerido: **20 minutos**.
 
 ## Objetivo
 
-Receber uma requisição HTTP e publicar um evento `OrderCreated` no Amazon SNS local.
+Receber uma requisição HTTP e publicar um evento `OrderCreated` no Amazon SNS local usando Kotlin + Spring Boot.
 
 ## 1. Suba todo o ambiente
 
@@ -74,13 +74,27 @@ arn:aws:sns:us-east-1:000000000000:orders-topic
 
 ## 6. O que o código faz?
 
-No `OrderController`:
+No `OrderController.kt`:
 
-```java
-snsClient.publish(PublishRequest.builder()
-    .topicArn(topicArn)
-    .message(message)
-    .build());
+```kotlin
+snsClient.publish(
+    PublishRequest.builder()
+        .topicArn(topicArn)
+        .message(message)
+        .build()
+)
+```
+
+O evento também é modelado de forma simples com `data class`:
+
+```kotlin
+data class OrderCreated(
+    val eventId: UUID,
+    val orderId: UUID,
+    val customerEmail: String,
+    val total: BigDecimal,
+    val occurredAt: Instant
+)
 ```
 
 O detalhe importante não é decorar a API do SDK. É entender a responsabilidade:
