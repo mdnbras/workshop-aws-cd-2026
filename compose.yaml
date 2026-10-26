@@ -10,73 +10,16 @@ services:
     volumes:
       - floci-data:/app/data
 
-  aws-init:
-    image: amazon/aws-cli:latest
-    depends_on:
-      - floci
-    environment: &aws-env
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      AWS_DEFAULT_REGION: us-east-1
-      AWS_ENDPOINT_URL: http://floci:4566
-    entrypoint: ["/bin/sh", "/workshop/scripts/init-aws.sh"]
-    volumes:
-      - ./:/workshop:ro
-    restart: "no"
-
   aws-cli:
     image: amazon/aws-cli:latest
     profiles: ["tools"]
     depends_on:
       - floci
-    environment: *aws-env
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
     entrypoint: ["aws", "--endpoint-url", "http://floci:4566"]
-
-  order-api:
-    build:
-      context: .
-      dockerfile: order-api/Dockerfile
-    depends_on:
-      aws-init:
-        condition: service_completed_successfully
-    ports:
-      - "8080:8080"
-    environment:
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      AWS_REGION: us-east-1
-      AWS_ENDPOINT_URL: http://floci:4566
-      ORDERS_TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:orders-topic
-
-  notification-worker:
-    build:
-      context: .
-      dockerfile: event-worker/Dockerfile
-    depends_on:
-      aws-init:
-        condition: service_completed_successfully
-    environment:
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      AWS_REGION: us-east-1
-      AWS_ENDPOINT_URL: http://floci:4566
-      WORKER_NAME: notification
-      QUEUE_URL: http://floci:4566/000000000000/notification-queue
-
-  analytics-worker:
-    build:
-      context: .
-      dockerfile: event-worker/Dockerfile
-    depends_on:
-      aws-init:
-        condition: service_completed_successfully
-    environment:
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      AWS_REGION: us-east-1
-      AWS_ENDPOINT_URL: http://floci:4566
-      WORKER_NAME: analytics
-      QUEUE_URL: http://floci:4566/000000000000/analytics-queue
 
 volumes:
   floci-data:
