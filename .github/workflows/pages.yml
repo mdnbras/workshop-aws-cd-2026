@@ -28,7 +28,9 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Apply presentation patches
-        run: python presentation/patch-slide2.py
+        run: |
+          python presentation/patch-slide2.py
+          python presentation/patch-fullhd.py
 
       - name: Upload presentation
         uses: actions/upload-pages-artifact@v3
