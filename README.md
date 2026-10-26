@@ -33,7 +33,7 @@ flowchart LR
 ## Stack
 
 - Java 21
-- Spring Boot 4.1.2
+- Spring Boot 3.5.16
 - AWS SDK for Java v2
 - Amazon SNS
 - Amazon SQS
@@ -126,10 +126,10 @@ docker compose logs -f order-api
 docker compose logs -f notification-worker analytics-worker
 
 # Ver as filas
-docker compose run --rm aws-cli sqs list-queues
+docker compose --profile tools run --rm aws-cli sqs list-queues
 
 # Ver o tópico
-docker compose run --rm aws-cli sns list-topics
+docker compose --profile tools run --rm aws-cli sns list-topics
 
 # Parar o laboratório
 docker compose down
@@ -137,6 +137,16 @@ docker compose down
 # Parar e apagar dados locais
 docker compose down -v
 ```
+
+## Pedido que demonstra DLQ
+
+```bash
+curl -X POST http://localhost:8080/orders \
+  -H 'Content-Type: application/json' \
+  -d '{"customerEmail":"fail@workshop.local","total":99.90}'
+```
+
+Esse e-mail provoca uma falha proposital apenas no `notification-worker`, permitindo visualizar retry e Dead Letter Queue sem afetar o `analytics-worker`.
 
 ## Observação importante
 
