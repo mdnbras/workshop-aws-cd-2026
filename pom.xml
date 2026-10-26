@@ -20,8 +20,7 @@
 
   <modules>
     <module>order-api</module>
-    <module>notification-worker</module>
-    <module>analytics-worker</module>
+    <module>event-worker</module>
   </modules>
 
   <properties>
@@ -40,5 +39,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
 </project>
