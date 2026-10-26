@@ -2,7 +2,7 @@
 
 Workshop hands-on de 2 horas para nível iniciante/intermediário, preparado para um evento AWS.
 
-> Todo o laboratório roda localmente com Docker + [Floci](https://floci.io/), sem necessidade de conta AWS e sem risco de cobrança.
+> O fluxo principal roda localmente com Docker + [Floci](https://floci.io/), sem necessidade de conta AWS e sem risco de cobrança. Como trilha opcional, o projeto também inclui Terraform para quem quiser executar a mesma arquitetura em uma conta AWS própria.
 
 ## Objetivo
 
@@ -29,6 +29,7 @@ flowchart LR
 - Retry, Visibility Timeout e Dead Letter Queue.
 - AWS SDK apontando para o Floci.
 - Kotlin + Spring Boot em producer e workers.
+- Como provisionar a mesma arquitetura em uma conta AWS real com Terraform.
 
 ## Stack
 
@@ -41,6 +42,35 @@ flowchart LR
 - Floci
 - Docker / Docker Compose
 - Maven
+- Terraform
+
+## Dois modos de execução
+
+### 1. Workshop local — recomendado para acompanhar ao vivo
+
+```text
+Aplicações -> Floci -> SNS/SQS simulados localmente
+```
+
+Não exige conta AWS e mantém o laboratório previsível.
+
+### 2. AWS real — trilha opcional
+
+```text
+Aplicações -> endpoints oficiais AWS -> SNS/SQS da conta do participante
+```
+
+A infraestrutura fica em [`infra/terraform`](infra/terraform/README.md) e provisiona:
+
+- tópico SNS de pedidos;
+- fila SQS de notificação;
+- fila SQS de analytics;
+- Dead Letter Queue;
+- subscriptions SNS -> SQS;
+- políticas de acesso das filas;
+- redrive policy.
+
+> Em AWS real podem existir custos. Revise `terraform plan` e execute `terraform destroy` ao terminar.
 
 ## Organização do código
 
@@ -57,6 +87,9 @@ event-worker/
   handler/      # comportamento do consumidor
   model/        # modelo tipado do evento
   config/       # configuração AWS SDK
+
+infra/
+  terraform/    # infraestrutura opcional para AWS real
 ```
 
 Fluxo didático:
@@ -102,6 +135,8 @@ git switch workshop/05-dlq-final
 
 ## Pré-requisitos
 
+Para o fluxo local:
+
 - Docker 20.10+
 - Docker Compose v2+
 - Git
@@ -109,7 +144,14 @@ git switch workshop/05-dlq-final
 
 Kotlin, Java e Maven não precisam estar instalados localmente: o build é feito pelos containers.
 
-## Início rápido — solução final
+Para a trilha opcional de AWS real:
+
+- Terraform >= 1.7
+- AWS CLI configurado/autenticado
+- conta AWS própria ou ambiente de laboratório
+- permissões para criar SNS/SQS e políticas relacionadas
+
+## Início rápido — solução final local
 
 ```bash
 git clone https://github.com/mdnbras/workshop-aws-cd-2026.git
@@ -124,6 +166,30 @@ Teste:
 curl -X POST http://localhost:8080/orders \
   -H 'Content-Type: application/json' \
   -d '{"customerEmail":"dev@aws.local","total":149.90}'
+```
+
+## AWS real com Terraform — resumo
+
+```bash
+cd infra/terraform
+cp terraform.tfvars.example terraform.tfvars
+terraform init
+terraform plan
+terraform apply
+./generate-env.sh
+cd ../..
+docker compose --env-file .env.aws -f compose.aws.yaml up --build
+```
+
+No Windows PowerShell, use `Copy-Item` e `./generate-env.ps1`.
+
+Veja o passo a passo completo em [infra/terraform/README.md](infra/terraform/README.md).
+
+Ao terminar:
+
+```bash
+cd infra/terraform
+terraform destroy
 ```
 
 ## Roteiro de 2 horas
@@ -150,6 +216,7 @@ curl -X POST http://localhost:8080/orders \
 8. [Lab 5 — Retry e Dead Letter Queue](docs/07-lab-5-dlq.md)
 9. [Desafios extras](docs/07-desafios.md)
 10. [Cleanup e próximos passos](docs/08-cleanup.md)
+11. [AWS real com Terraform](infra/terraform/README.md)
 
 ## Comandos úteis
 
@@ -178,7 +245,7 @@ A falha é proposital apenas no `notification-worker`; o `analytics-worker` cont
 
 ## Produção real
 
-Floci é usado apenas para desenvolvimento local e aprendizado. Em produção, revise IAM, políticas SNS/SQS, criptografia, rede, observabilidade, idempotência, limites, custos e disponibilidade.
+Floci é usado apenas para desenvolvimento local e aprendizado. A trilha Terraform permite experimentar a arquitetura na AWS, mas continua sendo material de workshop. Em produção, revise IAM, políticas SNS/SQS, criptografia, rede, observabilidade, idempotência, limites, custos e disponibilidade.
 
 ## Autor
 
