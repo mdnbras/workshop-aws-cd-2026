@@ -1,0 +1,17 @@
+### Pedido normal
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "customerEmail": "student@aws.local",
+  "total": 149.90
+}
+
+### Pedido que provoca falha no notification-worker
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "customerEmail": "fail@workshop.local",
+  "total": 99.90
+}
