@@ -6,53 +6,41 @@ html = path.read_text(encoding="utf-8")
 
 new_slide = r'''<section class="slide" data-title="Síncrono vs Assíncrono — fluxo interativo">
       <style>
-        #flowLab{margin-top:14px}
-        #flowLab .flow-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:10px}
-        #flowLab .flow-actions{display:flex;gap:8px;flex-wrap:wrap}
-        #flowLab .flow-btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#dce8f8;border-radius:999px;padding:8px 13px;cursor:pointer;font-size:13px;font-weight:800;transition:.2s ease}
-        #flowLab .flow-btn:hover,#flowLab .flow-btn.active{transform:translateY(-1px);background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.26)}
-        #flowLab .flow-btn.sync.active{color:#65d8ff;border-color:rgba(101,216,255,.45);box-shadow:0 0 26px rgba(101,216,255,.12)}
-        #flowLab .flow-btn.async.active{color:#ff7fc4;border-color:rgba(255,127,196,.45);box-shadow:0 0 26px rgba(255,127,196,.12)}
-        #flowLab .flow-stage{position:relative;height:430px;border:1px solid rgba(255,255,255,.12);border-radius:30px;background:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),radial-gradient(circle at 15% 50%,rgba(103,183,255,.11),transparent 23%),radial-gradient(circle at 68% 72%,rgba(255,127,196,.08),transparent 25%),rgba(7,11,22,.64);background-size:48px 48px,48px 48px,auto,auto,auto;overflow:hidden;box-shadow:0 22px 60px rgba(0,0,0,.32)}
-        #flowLab .lane-label{position:absolute;left:382px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;z-index:4}
-        #flowLab .lane-label.sync{top:16px;color:#7ee4ff;border:1px solid rgba(101,216,255,.28);background:rgba(101,216,255,.08)}
-        #flowLab .lane-label.async{top:224px;color:#ff91cd;border:1px solid rgba(255,127,196,.28);background:rgba(255,127,196,.08)}
-        #flowLab .flow-node{position:absolute;z-index:5;min-width:110px;padding:11px 13px;border-radius:16px;border:1px solid rgba(255,255,255,.14);background:rgba(11,17,32,.92);text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.30);transition:.25s ease}
-        #flowLab .flow-node small{display:block;margin-top:3px;color:#8fa1bb;font-size:10px;font-weight:700}
-        #flowLab .flow-node b{font-size:13px;letter-spacing:-.01em}
-        #flowLab .flow-node.client{left:26px;top:171px;border-color:rgba(255,153,0,.38)}
-        #flowLab .flow-node.api{left:184px;top:171px;border-color:rgba(103,183,255,.38)}
-        #flowLab .flow-node.sync1{left:382px;top:55px;border-color:rgba(101,216,255,.36)}
-        #flowLab .flow-node.sync2{left:562px;top:55px;border-color:rgba(101,216,255,.36)}
-        #flowLab .flow-node.sync3{left:742px;top:55px;border-color:rgba(101,216,255,.36)}
-        #flowLab .flow-node.sync4{left:922px;top:55px;border-color:rgba(255,209,102,.40)}
-        #flowLab .flow-node.event{left:382px;top:270px;border-color:rgba(255,153,0,.40)}
-        #flowLab .flow-node.sns{left:542px;top:270px;border-color:rgba(255,153,0,.46)}
-        #flowLab .flow-node.q1{left:714px;top:232px;border-color:rgba(154,124,255,.48)}
-        #flowLab .flow-node.q2{left:714px;top:327px;border-color:rgba(154,124,255,.48)}
-        #flowLab .flow-node.w1{left:904px;top:232px;border-color:rgba(73,209,125,.45)}
-        #flowLab .flow-node.w2{left:904px;top:327px;border-color:rgba(73,209,125,.45)}
-        #flowLab .flow-node.response{left:184px;top:315px;border-color:rgba(73,209,125,.50);background:rgba(73,209,125,.08)}
-        #flowLab .flow-node.active{transform:translateY(-3px) scale(1.025);filter:brightness(1.2)}
-        #flowLab .flow-node.sync-glow{box-shadow:0 0 26px rgba(101,216,255,.23),0 14px 34px rgba(0,0,0,.3)}
-        #flowLab .flow-node.async-glow{box-shadow:0 0 26px rgba(255,127,196,.20),0 14px 34px rgba(0,0,0,.3)}
-        #flowLab .flow-node.good-glow{box-shadow:0 0 28px rgba(73,209,125,.25),0 14px 34px rgba(0,0,0,.3)}
-        #flowLab svg{position:absolute;inset:0;width:100%;height:100%;z-index:2}
-        #flowLab .wire{fill:none;stroke-width:2.3;opacity:.28;transition:opacity .25s ease,filter .25s ease}
+        #flowLab{margin-top:10px}
+        #flowLab .flow-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:10px}
+        #flowLab .flow-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+        #flowLab .flow-btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#dce8f8;border-radius:999px;padding:8px 13px;cursor:pointer;font-size:12px;font-weight:800;transition:.2s ease}
+        #flowLab .flow-btn:hover,#flowLab .flow-btn.active{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.26)}
+        #flowLab .flow-btn.sync.active{color:#65d8ff;border-color:rgba(101,216,255,.45)}
+        #flowLab .flow-btn.async.active{color:#ff7fc4;border-color:rgba(255,127,196,.45)}
+        #flowLab .flow-stage{border:1px solid rgba(255,255,255,.12);border-radius:26px;background:rgba(7,11,22,.66);overflow:hidden;box-shadow:0 18px 48px rgba(0,0,0,.28)}
+        #flowLab svg{display:block;width:100%;height:auto;max-height:48vh}
+        #flowLab .wire{fill:none;stroke-width:2.3;opacity:.28;transition:opacity .2s ease,filter .2s ease}
         #flowLab .wire.sync{stroke:#54d6ff}
         #flowLab .wire.async{stroke:#ff5db1}
-        #flowLab .wire.return{stroke:#49d17d;stroke-dasharray:6 7}
+        #flowLab .wire.return{stroke:#49d17d;stroke-dasharray:7 7}
         #flowLab .wire.hot{opacity:1;filter:drop-shadow(0 0 5px currentColor)}
-        #flowLab .packet{opacity:0}
-        #flowLab .packet.sync{fill:#7ee4ff}
-        #flowLab .packet.async{fill:#ff77c1}
-        #flowLab .packet.return{fill:#66ea95}
-        #flowLab .flow-caption{position:absolute;z-index:6;font-size:11px;color:#9cafc8;max-width:190px;line-height:1.3}
-        #flowLab .cap-sync{left:914px;top:119px;text-align:center}
-        #flowLab .cap-async{left:374px;top:350px;color:#7ee8a3}
-        #flowLab .flow-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-        #flowLab .summary-chip{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);font-size:12px;color:#b8c6da}
-        #flowLab .summary-chip b{color:#eef5ff}.legend-dot{width:9px;height:9px;border-radius:50%;flex:none}
+        #flowLab .flow-node-svg rect{fill:#0d1528;stroke:rgba(255,255,255,.18);stroke-width:1.4;transition:.2s ease}
+        #flowLab .flow-node-svg text{fill:#f5f8ff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;text-anchor:middle;pointer-events:none}
+        #flowLab .flow-node-svg .primary{font-size:13px;font-weight:800}
+        #flowLab .flow-node-svg .secondary{font-size:9.5px;font-weight:650;fill:#8fa1bb}
+        #flowLab .flow-node-svg.client rect{stroke:#ff9900}
+        #flowLab .flow-node-svg.api rect{stroke:#67b7ff}
+        #flowLab .flow-node-svg.sync rect{stroke:#54d6ff}
+        #flowLab .flow-node-svg.event rect,#flowLab .flow-node-svg.sns rect{stroke:#ff9900}
+        #flowLab .flow-node-svg.queue rect{stroke:#9a7cff}
+        #flowLab .flow-node-svg.worker rect{stroke:#49d17d}
+        #flowLab .flow-node-svg.response rect{stroke:#49d17d;fill:rgba(73,209,125,.09)}
+        #flowLab .flow-node-svg.active rect{stroke-width:2.5;filter:drop-shadow(0 0 7px rgba(255,255,255,.18))}
+        #flowLab .lane-title{font:800 11px Inter,ui-sans-serif,system-ui;letter-spacing:.08em;text-transform:uppercase}
+        #flowLab .lane-title.sync{fill:#7ee4ff}
+        #flowLab .lane-title.async{fill:#ff91cd}
+        #flowLab .lane-hint{font:600 10px Inter,ui-sans-serif,system-ui;fill:#8395b0}
+        #flowLab .flow-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px}
+        #flowLab .summary-chip{display:flex;align-items:flex-start;gap:9px;padding:8px 11px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);font-size:11px;line-height:1.35;color:#aebed3}
+        #flowLab .summary-chip b{color:#eef5ff}.legend-dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:3px}
+        #flowLab .packet{filter:drop-shadow(0 0 6px currentColor)}
+        @media(max-height:900px){#flowLab svg{max-height:43vh}#flowLab .flow-toolbar h2{font-size:34px!important}#flowLab .flow-toolbar p{font-size:13px!important}}
       </style>
 
       <div class="inner">
@@ -60,132 +48,233 @@ new_slide = r'''<section class="slide" data-title="Síncrono vs Assíncrono — 
         <div id="flowLab">
           <div class="flow-toolbar">
             <div>
-              <h2 style="margin:8px 0 3px;font-size:clamp(32px,4.4vw,58px)">Do Postman ao backend: <span class="accent">dois modelos</span></h2>
-              <p style="font-size:16px">Dispare o fluxo e acompanhe a requisição percorrendo cada arquitetura.</p>
+              <h2 style="margin:6px 0 3px;font-size:clamp(30px,4vw,52px)">Do Postman ao backend: <span class="accent">dois modelos</span></h2>
+              <p style="font-size:15px">As conexões agora fazem parte do mesmo SVG das caixas, mantendo tudo alinhado em qualquer resolução.</p>
             </div>
             <div class="flow-actions" aria-label="Controles da animação">
               <button class="flow-btn sync" data-run="sync">▶ Síncrono</button>
               <button class="flow-btn async" data-run="async">▶ Assíncrono</button>
               <button class="flow-btn" data-run="both">▶ Comparar</button>
-              <button class="flow-btn" data-run="reset">↻</button>
+              <button class="flow-btn" data-run="reset">↻ Reset</button>
             </div>
           </div>
 
           <div class="flow-stage">
-            <div class="lane-label sync">modelo síncrono</div>
-            <div class="lane-label async">AWS + eventos</div>
-            <svg viewBox="0 0 1120 430" preserveAspectRatio="none" aria-hidden="true">
-              <path id="p-entry" class="wire sync" d="M126 198 C148 198 164 198 184 198"/>
-              <path id="p-entry-a" class="wire async" d="M126 214 C148 214 164 214 184 214"/>
-              <path id="p-sync-1" class="wire sync" d="M294 190 C332 190 336 80 382 80"/>
-              <path id="p-sync-2" class="wire sync" d="M492 80 C518 80 538 80 562 80"/>
-              <path id="p-sync-3" class="wire sync" d="M672 80 C698 80 718 80 742 80"/>
-              <path id="p-sync-4" class="wire sync" d="M852 80 C878 80 898 80 922 80"/>
-              <path id="p-async-1" class="wire async" d="M294 214 C330 214 338 295 382 295"/>
-              <path id="p-async-2" class="wire async" d="M492 295 C510 295 526 295 542 295"/>
-              <path id="p-async-q1" class="wire async" d="M652 295 C681 295 684 257 714 257"/>
-              <path id="p-async-q2" class="wire async" d="M652 295 C681 295 684 352 714 352"/>
-              <path id="p-async-w1" class="wire async" d="M824 257 C852 257 876 257 904 257"/>
-              <path id="p-async-w2" class="wire async" d="M824 352 C852 352 876 352 904 352"/>
-              <path id="p-return" class="wire return" d="M438 329 C370 401 262 396 238 350 C216 309 228 260 246 221"/>
+            <svg id="flowSvg" viewBox="0 0 1120 420" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Comparação visual entre fluxo síncrono e fluxo assíncrono com SNS e SQS">
+              <defs>
+                <pattern id="flowGrid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="1"/></pattern>
+                <marker id="arrowSync" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#54d6ff" opacity=".75"/></marker>
+                <marker id="arrowAsync" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#ff5db1" opacity=".75"/></marker>
+                <marker id="arrowReturn" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#49d17d" opacity=".85"/></marker>
+              </defs>
 
-              <circle class="packet sync" r="5"><animateMotion data-motion="sync" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-entry"/></animateMotion></circle>
-              <circle class="packet sync" r="5"><animateMotion data-motion="sync" dur=".70s" begin="indefinite" fill="freeze"><mpath href="#p-sync-1"/></animateMotion></circle>
-              <circle class="packet sync" r="5"><animateMotion data-motion="sync" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-sync-2"/></animateMotion></circle>
-              <circle class="packet sync" r="5"><animateMotion data-motion="sync" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-sync-3"/></animateMotion></circle>
-              <circle class="packet sync" r="5"><animateMotion data-motion="sync" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-sync-4"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-entry-a"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".66s" begin="indefinite" fill="freeze"><mpath href="#p-async-1"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".40s" begin="indefinite" fill="freeze"><mpath href="#p-async-2"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-async-q1"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-async-q2"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-async-w1"/></animateMotion></circle>
-              <circle class="packet async" r="5"><animateMotion data-motion="async" dur=".48s" begin="indefinite" fill="freeze"><mpath href="#p-async-w2"/></animateMotion></circle>
-              <circle class="packet return" r="5"><animateMotion data-motion="return" dur=".78s" begin="indefinite" fill="freeze"><mpath href="#p-return"/></animateMotion></circle>
+              <rect x="0" y="0" width="1120" height="420" fill="url(#flowGrid)"/>
+              <rect x="356" y="20" width="744" height="164" rx="22" fill="rgba(84,214,255,.025)" stroke="rgba(84,214,255,.10)"/>
+              <rect x="356" y="220" width="744" height="180" rx="22" fill="rgba(255,93,177,.025)" stroke="rgba(255,93,177,.10)"/>
+              <text x="378" y="43" class="lane-title sync">MODELO SÍNCRONO</text>
+              <text x="378" y="243" class="lane-title async">AWS + EVENTOS</text>
+              <text x="1090" y="43" text-anchor="end" class="lane-hint">cliente espera todo o encadeamento</text>
+              <text x="1090" y="243" text-anchor="end" class="lane-hint">cliente é liberado; consumers seguem depois</text>
+
+              <path id="p-entry-sync" class="wire sync" marker-end="url(#arrowSync)" d="M155 196 C175 196 188 196 210 196"/>
+              <path id="p-entry-async" class="wire async" marker-end="url(#arrowAsync)" d="M155 214 C175 214 188 214 210 214"/>
+              <path id="p-sync-1" class="wire sync" marker-end="url(#arrowSync)" d="M350 195 C385 195 392 102 430 102"/>
+              <path id="p-sync-2" class="wire sync" marker-end="url(#arrowSync)" d="M560 102 C585 102 602 102 626 102"/>
+              <path id="p-sync-3" class="wire sync" marker-end="url(#arrowSync)" d="M756 102 C781 102 798 102 822 102"/>
+              <path id="p-sync-4" class="wire sync" marker-end="url(#arrowSync)" d="M952 102 C972 102 986 102 1002 102"/>
+
+              <path id="p-async-1" class="wire async" marker-end="url(#arrowAsync)" d="M350 215 C386 215 392 295 430 295"/>
+              <path id="p-async-2" class="wire async" marker-end="url(#arrowAsync)" d="M560 295 C580 295 592 295 610 295"/>
+              <path id="p-async-q1" class="wire async" marker-end="url(#arrowAsync)" d="M730 295 C762 295 764 272 794 272"/>
+              <path id="p-async-q2" class="wire async" marker-end="url(#arrowAsync)" d="M730 295 C762 295 764 350 794 350"/>
+              <path id="p-async-w1" class="wire async" marker-end="url(#arrowAsync)" d="M914 272 C936 272 948 272 968 272"/>
+              <path id="p-async-w2" class="wire async" marker-end="url(#arrowAsync)" d="M914 350 C936 350 948 350 968 350"/>
+              <path id="p-return" class="wire return" marker-end="url(#arrowReturn)" d="M280 235 C280 265 280 290 280 318"/>
+              <path id="p-return-client" class="wire return" marker-end="url(#arrowReturn)" d="M210 345 C178 345 142 318 118 245"/>
+
+              <g class="flow-node-svg client" data-node="client">
+                <rect x="25" y="175" width="130" height="60" rx="14"/>
+                <text x="90" y="201" class="primary">POST /orders</text><text x="90" y="218" class="secondary">Postman</text>
+              </g>
+              <g class="flow-node-svg api" data-node="api">
+                <rect x="210" y="175" width="140" height="60" rx="14"/>
+                <text x="280" y="201" class="primary">Order API</text><text x="280" y="218" class="secondary">Kotlin + Spring Boot</text>
+              </g>
+
+              <g class="flow-node-svg sync" data-node="sync1">
+                <rect x="430" y="72" width="130" height="60" rx="14"/>
+                <text x="495" y="98" class="primary">Notification API</text><text x="495" y="115" class="secondary">HTTP síncrono</text>
+              </g>
+              <g class="flow-node-svg sync" data-node="sync2">
+                <rect x="626" y="72" width="130" height="60" rx="14"/>
+                <text x="691" y="98" class="primary">Analytics API</text><text x="691" y="115" class="secondary">HTTP síncrono</text>
+              </g>
+              <g class="flow-node-svg sync" data-node="sync3">
+                <rect x="822" y="72" width="130" height="60" rx="14"/>
+                <text x="887" y="98" class="primary">Persistência</text><text x="887" y="115" class="secondary">aguarda concluir</text>
+              </g>
+              <g class="flow-node-svg sync" data-node="sync4">
+                <rect x="1002" y="72" width="96" height="60" rx="14"/>
+                <text x="1050" y="98" class="primary">200 / 201</text><text x="1050" y="115" class="secondary">no final</text>
+              </g>
+
+              <g class="flow-node-svg event" data-node="event">
+                <rect x="430" y="265" width="130" height="60" rx="14"/>
+                <text x="495" y="291" class="primary">OrderCreated</text><text x="495" y="308" class="secondary">evento</text>
+              </g>
+              <g class="flow-node-svg sns" data-node="sns">
+                <rect x="610" y="265" width="120" height="60" rx="14"/>
+                <text x="670" y="291" class="primary">Amazon SNS</text><text x="670" y="308" class="secondary">fan-out</text>
+              </g>
+              <g class="flow-node-svg queue" data-node="q1">
+                <rect x="794" y="246" width="120" height="52" rx="13"/>
+                <text x="854" y="269" class="primary">notification-queue</text><text x="854" y="285" class="secondary">Amazon SQS</text>
+              </g>
+              <g class="flow-node-svg queue" data-node="q2">
+                <rect x="794" y="324" width="120" height="52" rx="13"/>
+                <text x="854" y="347" class="primary">analytics-queue</text><text x="854" y="363" class="secondary">Amazon SQS</text>
+              </g>
+              <g class="flow-node-svg worker" data-node="w1">
+                <rect x="968" y="246" width="130" height="52" rx="13"/>
+                <text x="1033" y="269" class="primary">notification-worker</text><text x="1033" y="285" class="secondary">processa depois</text>
+              </g>
+              <g class="flow-node-svg worker" data-node="w2">
+                <rect x="968" y="324" width="130" height="52" rx="13"/>
+                <text x="1033" y="347" class="primary">analytics-worker</text><text x="1033" y="363" class="secondary">processa depois</text>
+              </g>
+              <g class="flow-node-svg response" data-node="response">
+                <rect x="210" y="318" width="140" height="54" rx="14"/>
+                <text x="280" y="342" class="primary">202 Accepted</text><text x="280" y="358" class="secondary">cliente liberado</text>
+              </g>
             </svg>
-
-            <div class="flow-node client" data-node="client"><b>POST /orders</b><small>Postman</small></div>
-            <div class="flow-node api" data-node="api"><b>Order API</b><small>Kotlin + Spring Boot</small></div>
-            <div class="flow-node sync1" data-node="sync1"><b>Notification API</b><small>HTTP síncrono</small></div>
-            <div class="flow-node sync2" data-node="sync2"><b>Analytics API</b><small>HTTP síncrono</small></div>
-            <div class="flow-node sync3" data-node="sync3"><b>Persistência</b><small>aguarda concluir</small></div>
-            <div class="flow-node sync4" data-node="sync4"><b>200 / 201</b><small>resposta no final</small></div>
-            <div class="flow-caption cap-sync">O cliente fica preso ao tempo de todo o encadeamento.</div>
-            <div class="flow-node event" data-node="event"><b>OrderCreated</b><small>evento</small></div>
-            <div class="flow-node sns" data-node="sns"><b>Amazon SNS</b><small>fan-out</small></div>
-            <div class="flow-node q1" data-node="q1"><b>notification-queue</b><small>Amazon SQS</small></div>
-            <div class="flow-node q2" data-node="q2"><b>analytics-queue</b><small>Amazon SQS</small></div>
-            <div class="flow-node w1" data-node="w1"><b>notification-worker</b><small>processa depois</small></div>
-            <div class="flow-node w2" data-node="w2"><b>analytics-worker</b><small>processa depois</small></div>
-            <div class="flow-node response" data-node="response"><b>202 Accepted</b><small>cliente liberado</small></div>
-            <div class="flow-caption cap-async">A resposta volta cedo; filas e workers continuam.</div>
           </div>
 
           <div class="flow-summary">
-            <div class="summary-chip"><span class="legend-dot" style="background:#54d6ff"></span><span><b>Síncrono:</b> latência e disponibilidade dos próximos serviços entram no caminho crítico.</span></div>
-            <div class="summary-chip"><span class="legend-dot" style="background:#ff5db1"></span><span><b>Assíncrono:</b> publica o fato, responde e os consumidores seguem de forma independente.</span></div>
+            <div class="summary-chip"><span class="legend-dot" style="background:#54d6ff"></span><span><b>Síncrono:</b> Notification, Analytics e persistência fazem parte do tempo da requisição.</span></div>
+            <div class="summary-chip"><span class="legend-dot" style="background:#ff5db1"></span><span><b>Assíncrono:</b> a API publica <code>OrderCreated</code>, retorna 202 e os consumidores avançam independentemente.</span></div>
           </div>
         </div>
       </div>
 
       <script>
-        (() => {
-          const root = document.getElementById('flowLab');
-          if (!root || root.dataset.ready === '1') return;
-          root.dataset.ready = '1';
-          const buttons = [...root.querySelectorAll('[data-run]')];
-          const node = name => root.querySelector(`[data-node="${name}"]`);
-          const wires = mode => [...root.querySelectorAll(`.wire.${mode}`)];
-          const motions = mode => [...root.querySelectorAll(`animateMotion[data-motion="${mode}"]`)];
-          let timers = [];
-          const later = (ms, fn) => timers.push(setTimeout(fn, ms));
-          const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
-          const activate = (name, cls) => { const n=node(name); if(n){n.classList.add('active'); if(cls)n.classList.add(cls);} };
-          const reset = () => {
-            clearTimers();
-            buttons.forEach(b=>b.classList.remove('active'));
-            root.querySelectorAll('.flow-node').forEach(n=>n.classList.remove('active','sync-glow','async-glow','good-glow'));
-            root.querySelectorAll('.wire').forEach(w=>w.classList.remove('hot'));
-            root.querySelectorAll('.packet').forEach(p=>p.style.opacity='0');
-          };
-          const runMotions = (mode,start=0,step=470) => motions(mode).forEach((m,i)=>later(start+i*step,()=>{
-            m.parentElement.style.opacity='1';
-            try{m.beginElement();}catch(_){ }
-            later(parseFloat(m.getAttribute('dur'))*1000+50,()=>m.parentElement.style.opacity='0');
-          }));
-          const runSync = () => {
-            reset(); buttons.find(b=>b.dataset.run==='sync')?.classList.add('active'); wires('sync').forEach(w=>w.classList.add('hot'));
-            ['client','api','sync1','sync2','sync3','sync4'].forEach((n,i)=>later(i*480,()=>activate(n,'sync-glow'))); runMotions('sync',0,480);
-          };
-          const runAsync = () => {
-            reset(); buttons.find(b=>b.dataset.run==='async')?.classList.add('active'); wires('async').forEach(w=>w.classList.add('hot')); wires('return').forEach(w=>w.classList.add('hot'));
-            activate('client','async-glow'); later(440,()=>activate('api','async-glow')); later(900,()=>activate('event','async-glow')); later(1300,()=>activate('sns','async-glow'));
-            later(1680,()=>{activate('q1','async-glow');activate('q2','async-glow');}); later(2110,()=>{activate('w1','good-glow');activate('w2','good-glow');}); later(1350,()=>activate('response','good-glow'));
-            runMotions('async',0,420); runMotions('return',1280,420);
-          };
-          const runBoth = () => {
-            reset(); buttons.find(b=>b.dataset.run==='both')?.classList.add('active'); wires('sync').forEach(w=>w.classList.add('hot')); wires('async').forEach(w=>w.classList.add('hot')); wires('return').forEach(w=>w.classList.add('hot'));
-            activate('client','sync-glow'); later(380,()=>activate('api','sync-glow'));
-            ['sync1','sync2','sync3','sync4'].forEach((n,i)=>later(760+i*430,()=>activate(n,'sync-glow')));
-            later(760,()=>activate('event','async-glow')); later(1120,()=>activate('sns','async-glow')); later(1480,()=>{activate('q1','async-glow');activate('q2','async-glow');}); later(1880,()=>{activate('w1','good-glow');activate('w2','good-glow');}); later(1170,()=>activate('response','good-glow'));
-            runMotions('sync',0,430); runMotions('async',0,380); runMotions('return',1110,380);
-          };
-          buttons.forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation(); const m=btn.dataset.run; if(m==='sync')runSync(); else if(m==='async')runAsync(); else if(m==='both')runBoth(); else reset();}));
-          const slide=root.closest('.slide');
-          if(slide){const observer=new MutationObserver(()=>{if(slide.classList.contains('active')&&slide.dataset.flowPlayed!=='1'){slide.dataset.flowPlayed='1';later(600,runBoth);}});observer.observe(slide,{attributes:true,attributeFilter:['class']});if(slide.classList.contains('active'))later(600,runBoth);}
-        })();
+      (() => {
+        const root = document.getElementById('flowLab');
+        const slide = root?.closest('.slide');
+        const svg = document.getElementById('flowSvg');
+        if (!root || !slide || !svg || root.dataset.ready) return;
+        root.dataset.ready = '1';
+        let runToken = 0;
+        let autoPlayed = false;
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const node = name => root.querySelector(`[data-node="${name}"]`);
+        const pathEl = id => root.querySelector(`#${id}`);
+        const buttons = [...root.querySelectorAll('[data-run]')];
+
+        function reset(){
+          runToken++;
+          root.querySelectorAll('.flow-node-svg').forEach(n => n.classList.remove('active'));
+          root.querySelectorAll('.wire').forEach(w => w.classList.remove('hot'));
+          root.querySelectorAll('.packet').forEach(p => p.remove());
+          buttons.forEach(b => b.classList.remove('active'));
+        }
+
+        function activateNode(name){ node(name)?.classList.add('active'); }
+        function heat(id){ pathEl(id)?.classList.add('hot'); }
+
+        function animatePath(id, color, duration, token){
+          return new Promise(resolve => {
+            const p = pathEl(id); if (!p || token !== runToken) return resolve();
+            heat(id);
+            const total = p.getTotalLength();
+            const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            c.setAttribute('r','5'); c.setAttribute('fill',color); c.setAttribute('class','packet');
+            svg.appendChild(c);
+            const start = performance.now();
+            const step = now => {
+              if (token !== runToken) { c.remove(); return resolve(); }
+              const t = Math.min(1,(now-start)/duration);
+              const pt = p.getPointAtLength(total*t);
+              c.setAttribute('cx',pt.x); c.setAttribute('cy',pt.y);
+              if (t < 1) requestAnimationFrame(step); else { setTimeout(()=>c.remove(),120); resolve(); }
+            };
+            requestAnimationFrame(step);
+          });
+        }
+
+        async function runSync(sharedEntry=true){
+          const token = runToken;
+          buttons.find(b=>b.dataset.run==='sync')?.classList.add('active');
+          activateNode('client'); await sleep(180); if(token!==runToken)return;
+          if(sharedEntry){ await animatePath('p-entry-sync','#7ee4ff',420,token); activateNode('api'); await sleep(180); }
+          await animatePath('p-sync-1','#7ee4ff',620,token); activateNode('sync1'); await sleep(150);
+          await animatePath('p-sync-2','#7ee4ff',420,token); activateNode('sync2'); await sleep(150);
+          await animatePath('p-sync-3','#7ee4ff',420,token); activateNode('sync3'); await sleep(150);
+          await animatePath('p-sync-4','#7ee4ff',420,token); activateNode('sync4');
+        }
+
+        async function runAsync(sharedEntry=true){
+          const token = runToken;
+          buttons.find(b=>b.dataset.run==='async')?.classList.add('active');
+          activateNode('client'); await sleep(180); if(token!==runToken)return;
+          if(sharedEntry){ await animatePath('p-entry-async','#ff77c1',420,token); activateNode('api'); await sleep(180); }
+          await animatePath('p-async-1','#ff77c1',580,token); activateNode('event'); await sleep(120);
+          await animatePath('p-async-2','#ff77c1',360,token); activateNode('sns'); await sleep(100);
+          const returnPromise = (async()=>{ await animatePath('p-return','#66ea95',430,token); activateNode('response'); await animatePath('p-return-client','#66ea95',520,token); })();
+          const branches = Promise.all([
+            (async()=>{ await animatePath('p-async-q1','#ff77c1',460,token); activateNode('q1'); await animatePath('p-async-w1','#ff77c1',400,token); activateNode('w1'); })(),
+            (async()=>{ await animatePath('p-async-q2','#ff77c1',500,token); activateNode('q2'); await animatePath('p-async-w2','#ff77c1',400,token); activateNode('w2'); })()
+          ]);
+          await Promise.all([returnPromise,branches]);
+        }
+
+        async function run(mode){
+          reset();
+          const token = runToken;
+          buttons.find(b=>b.dataset.run===mode)?.classList.add('active');
+          if(mode==='sync') return runSync(true);
+          if(mode==='async') return runAsync(true);
+          if(mode==='both'){
+            activateNode('client');
+            await sleep(180); if(token!==runToken)return;
+            await Promise.all([
+              animatePath('p-entry-sync','#7ee4ff',420,token),
+              animatePath('p-entry-async','#ff77c1',420,token)
+            ]);
+            activateNode('api'); await sleep(160); if(token!==runToken)return;
+            await Promise.all([runSync(false),runAsync(false)]);
+          }
+        }
+
+        buttons.forEach(btn => btn.addEventListener('click', e => {
+          e.stopPropagation();
+          btn.dataset.run === 'reset' ? reset() : run(btn.dataset.run);
+        }));
+
+        const observer = new MutationObserver(() => {
+          if (slide.classList.contains('active') && !autoPlayed) {
+            autoPlayed = true;
+            setTimeout(()=>run('both'),450);
+          }
+        });
+        observer.observe(slide,{attributes:true,attributeFilter:['class']});
+        if(slide.classList.contains('active')) setTimeout(()=>{autoPlayed=true;run('both')},450);
+      })();
       </script>
-      <aside class="notes">Use Comparar para rodar os dois caminhos. No síncrono, mostre que o Postman só recebe resposta depois de Notification, Analytics e persistência. No assíncrono, mostre OrderCreated entrando no SNS, o fan-out para duas filas SQS e o 202 Accepted voltando antes dos workers terminarem. Os botões permitem repetir cada fluxo isoladamente.</aside>
+
+      <aside class="notes">Use os botões para comparar os dois modelos. Todo o diagrama está no mesmo SVG, então as linhas ficam presas às caixas mesmo quando a apresentação é redimensionada. No síncrono, a resposta só acontece depois de Notification, Analytics e persistência. No assíncrono, OrderCreated vai ao SNS, a API retorna 202 e SNS faz fan-out para filas SQS independentes.</aside>
     </section>'''
 
-pattern = re.compile(
-    r'<section class="slide" data-title="(?:Objetivo do workshop|Síncrono vs Assíncrono — resultado final|Síncrono vs Assíncrono — fluxo interativo)">.*?</section>',
-    flags=re.DOTALL,
-)
-
-if not pattern.search(html):
+patterns = [
+    re.compile(r'<section class="slide" data-title="Objetivo do workshop">.*?</section>', re.DOTALL),
+    re.compile(r'<section class="slide" data-title="Síncrono vs Assíncrono — resultado final">.*?</section>', re.DOTALL),
+    re.compile(r'<section class="slide" data-title="Síncrono vs Assíncrono — fluxo interativo">.*?</section>', re.DOTALL),
+]
+for pattern in patterns:
+    if pattern.search(html):
+        html = pattern.sub(new_slide, html, count=1)
+        break
+else:
     raise RuntimeError("Could not locate slide 2 to replace")
 
-html = pattern.sub(new_slide, html, count=1)
 path.write_text(html, encoding="utf-8")
-print("Interactive slide 2 updated for Pages build.")
+print("Slide 2 updated with fixed SVG connections.")
