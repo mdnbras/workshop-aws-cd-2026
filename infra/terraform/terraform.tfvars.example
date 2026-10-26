@@ -1,0 +1,11 @@
+aws_region  = "us-east-1"
+name_prefix = "workshop-eda-seu-nome"
+
+# visibility_timeout_seconds = 15
+# max_receive_count          = 3
+
+# tags = {
+#   Project   = "workshop-aws-cd-2026"
+#   ManagedBy = "Terraform"
+#   Owner     = "seu-nome"
+# }
