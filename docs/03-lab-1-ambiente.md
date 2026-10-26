@@ -2,50 +2,46 @@
 
 Tempo sugerido: **15 minutos**.
 
+## Branch deste laboratório
+
+```bash
+git switch workshop/01-floci
+```
+
+## Estado inicial
+
+Nesta etapa ainda não existe aplicação backend, producer ou consumer. Existe apenas o ambiente Docker com Floci e AWS CLI.
+
+```text
+Docker
+  +-- Floci :4566
+  +-- AWS CLI
+```
+
 ## Objetivo
 
-Subir um ambiente AWS local e executar comandos AWS sem conta real.
+Subir uma AWS local e manipular uma fila SQS sem conta AWS real.
 
-## 1. Suba apenas o Floci
+## Passos
 
 ```bash
 docker compose up -d floci
-```
-
-Confira:
-
-```bash
 docker compose ps
 ```
 
-O Floci publica as APIs AWS locais em:
-
-```text
-http://localhost:4566
-```
-
-## 2. Teste a AWS CLI em container
+Teste a CLI:
 
 ```bash
 docker compose --profile tools run --rm aws-cli sts get-caller-identity
 ```
 
-O resultado usa a conta local padrão `000000000000`.
-
-## 3. Crie uma fila manualmente
+Crie uma fila:
 
 ```bash
-docker compose --profile tools run --rm aws-cli \
-  sqs create-queue --queue-name hello-workshop
+docker compose --profile tools run --rm aws-cli sqs create-queue --queue-name hello-workshop
 ```
 
-Liste filas:
-
-```bash
-docker compose --profile tools run --rm aws-cli sqs list-queues
-```
-
-## 4. Envie uma mensagem
+Envie uma mensagem:
 
 ```bash
 docker compose --profile tools run --rm aws-cli sqs send-message \
@@ -53,32 +49,31 @@ docker compose --profile tools run --rm aws-cli sqs send-message \
   --message-body '{"message":"hello event-driven world"}'
 ```
 
-## 5. Receba a mensagem
+Receba:
 
 ```bash
 docker compose --profile tools run --rm aws-cli sqs receive-message \
   --queue-url http://floci:4566/000000000000/hello-workshop
 ```
 
-## 6. Limpe o recurso de teste
+Limpe:
 
 ```bash
 docker compose --profile tools run --rm aws-cli sqs delete-queue \
   --queue-url http://floci:4566/000000000000/hello-workshop
 ```
 
-## O que acabou de acontecer?
+## Estado final
 
-Você usou comandos do AWS CLI, mas o endpoint foi o Floci rodando no Docker.
+Você deve saber explicar o papel do Floci, o endpoint `:4566` e como uma fila mantém mensagens até que sejam consumidas.
 
-Em uma AWS real, o endpoint seria o endpoint oficial do serviço e as credenciais seriam reais.
+- [ ] Floci está ativo.
+- [ ] AWS CLI conversa com o ambiente local.
+- [ ] Criei, enviei, recebi e removi uma fila de teste.
 
-## Pergunta de fixação
+## Próxima etapa
 
-**Se o consumer estiver desligado quando a mensagem chega à SQS, a mensagem precisa ser perdida?**
-
-Resposta: não. A fila existe justamente para armazenar a mensagem até que um consumidor possa processá-la, respeitando as políticas de retenção configuradas.
-
-## Próximo passo
-
-Agora vamos deixar de publicar mensagens manualmente e criar um producer em Java/Spring Boot.
+```bash
+docker compose down -v
+git switch workshop/02-producer
+```
