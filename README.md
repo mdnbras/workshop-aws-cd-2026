@@ -68,25 +68,37 @@ SQS -> consumer -> parser -> handler
 
 ## Branches do passo a passo
 
-Cada etapa possui um snapshot próprio:
+Cada etapa possui um snapshot próprio e cada laboratório começa informando a branch correta, o estado inicial e o estado final esperado.
 
 | Branch | Etapa | Estado do projeto |
 |---|---|---|
 | `workshop/01-floci` | Lab 1 | Apenas Floci + AWS CLI local |
 | `workshop/02-producer` | Lab 2 | SNS + Order API publicando `OrderCreated` |
 | `workshop/03-fanout` | Lab 3 | SNS + duas filas SQS + subscriptions |
-| `workshop/04-consumers` | Lab 3/4 | Consumers independentes, ainda sem DLQ |
-| `workshop/05-dlq-final` | Lab 4 | Solução completa com retry e DLQ |
+| `workshop/04-consumers` | Lab 4 | Consumers independentes, ainda sem DLQ |
+| `workshop/05-dlq-final` | Lab 5 | Solução completa com retry e DLQ |
 | `workshop/00-before-refactor` | Referência | Versão anterior à refatoração por responsabilidades |
 
 Durante o workshop:
 
 ```bash
 git switch workshop/01-floci
-# ... execute o passo ...
+# execute o Lab 1
+
 git switch workshop/02-producer
-# ... e assim por diante
+# execute o Lab 2
+
+git switch workshop/03-fanout
+# execute o Lab 3
+
+git switch workshop/04-consumers
+# execute o Lab 4
+
+git switch workshop/05-dlq-final
+# execute o Lab 5
 ```
+
+> Se você se perder em qualquer etapa, volte para o início do laboratório correspondente, execute `docker compose down -v`, troque para a branch indicada e siga novamente a partir do bloco **Estado inicial**.
 
 ## Pré-requisitos
 
@@ -119,12 +131,12 @@ curl -X POST http://localhost:8080/orders \
 | Tempo | Etapa |
 |---|---|
 | 00:00-00:15 | Fundamentos: síncrono x assíncrono e EDA |
-| 00:15-00:30 | Floci e AWS local |
-| 00:30-00:50 | Producer em Kotlin e primeiro evento |
-| 00:50-01:15 | SNS + SQS e fan-out |
-| 01:15-01:35 | Workers e consumidores independentes |
-| 01:35-01:50 | Falha, retry e DLQ |
-| 01:50-02:00 | Desafio final, recap e próximos passos |
+| 00:15-00:30 | Lab 1 — Floci e AWS local |
+| 00:30-00:50 | Lab 2 — Producer em Kotlin e primeiro evento |
+| 00:50-01:10 | Lab 3 — SNS + SQS e fan-out |
+| 01:10-01:30 | Lab 4 — Workers e consumidores independentes |
+| 01:30-01:45 | Lab 5 — Falha, retry e DLQ |
+| 01:45-02:00 | Desafio final, recap, dúvidas e próximos passos |
 
 ## Material
 
@@ -134,9 +146,10 @@ curl -X POST http://localhost:8080/orders \
 4. [Lab 1 — Ambiente local com Floci](docs/03-lab-1-ambiente.md)
 5. [Lab 2 — Publicando o primeiro evento](docs/04-lab-2-producer.md)
 6. [Lab 3 — Fan-out com SNS + SQS](docs/05-lab-3-fanout.md)
-7. [Lab 4 — Retry e Dead Letter Queue](docs/06-lab-4-dlq.md)
-8. [Desafios extras](docs/07-desafios.md)
-9. [Cleanup e próximos passos](docs/08-cleanup.md)
+7. [Lab 4 — Consumidores independentes](docs/06-lab-4-consumers.md)
+8. [Lab 5 — Retry e Dead Letter Queue](docs/07-lab-5-dlq.md)
+9. [Desafios extras](docs/07-desafios.md)
+10. [Cleanup e próximos passos](docs/08-cleanup.md)
 
 ## Comandos úteis
 
